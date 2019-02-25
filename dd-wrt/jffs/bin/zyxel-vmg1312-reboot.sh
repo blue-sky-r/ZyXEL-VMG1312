@@ -2,9 +2,10 @@
 
 # force reboot of VDSL modem [ ZyXEL VMG1312 in bridge mode ] from command line (cron)
 #
-# usage: $0 [-log] [-try limit] [-guard cmd] -user user:pass (uptime|reboot) target
+# usage: $0 [-log|-log-tag tag] [-try limit] [-guard cmd] -user user:pass (uptime|reboot) target
 #
 # -log            ... (optional) log script output to syslog instead to stdout (usefull when executing from cron)
+# -log-tag tag    ... (optional) log to syslog (see -log above) with specific tag (default tag is VDSL)
 # -try limit      ... (optional) limit login tries to limit (default 3)
 # -guard cmd      ... (optional) do not reboot target if cmd is running (download ia wget/curl etc)
 # -user user:pass ... valid login for target device separated by :
@@ -12,8 +13,9 @@
 # reboot          ... perform reboot (see -gurad parameter above)
 # target          ... target device to reboot (hostname or ip address)
 #
-# intended for use on dd-wrt capable router, just copy to /jffs/bin/
-# and setup cron job (weekly/monthly) to reboot your ZyXEl VMG1312
+# intended for use on dd-wrt capable router, just copy to /jffs/bin/ directory
+# and setup a cron job (weekly/monthly) to reboot your ZyXEl VMG1312-B30B
+# https://wiki.dd-wrt.com/wiki/index.php/CRON
 
 # login tries limit
 #
@@ -29,7 +31,7 @@ PAGE_RBT=rebootinfo.cgi
 #
 WGET="wget -q -O -"
 
-# logger tag
+# default logger tag
 #
 TAG="VDSL"
 
@@ -54,7 +56,7 @@ die()
 
 # usage
 #
-[ $# -lt 2 ] && die "usage: $0 [-log] [-try limit] [-guard cmd] -user user:pass (uptime|reboot) target"
+[ $# -lt 2 ] && die "usage: $0 [-log|-log-tag tag] [-try limit] [-guard cmd] -user user:pass (uptime|reboot) target"
 
 # cli pars parser
 #
@@ -66,6 +68,11 @@ do
         LIMIT=$1
         ;;
     -l|-log)
+        OUT="logger -t $TAG"
+        ;;
+    -a|-log-tag)
+        shift
+        TAG=$1
         OUT="logger -t $TAG"
         ;;
     -g|-guard)
