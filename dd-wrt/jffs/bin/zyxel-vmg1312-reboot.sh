@@ -29,7 +29,8 @@ PAGE_RBT=rebootinfo.cgi
 
 # wget options - quiet, stdout
 #
-WGET="wget -q -O -"
+#WGET="wget -q -O -"
+WGET="wget -q --auth-no-challenge -O -"
 
 # default logger tag
 #
@@ -117,13 +118,16 @@ do
 	sleep $SLP
 done
 
-# get uptime from info page
+# get uptime, cpu/mem usage from info page
 #
-uptime=$( $WGET http://$MDM/$PAGE_INF | grep -A1 -i 'up \?time' | awk -F '<|>' '/time/ {txt=$3; gsub(/ time/,"time",txt); getline; up=tolower($3); gsub(/ /,"",up); printf "%s %s, ",txt,up}')
+#uptime=$( $WGET http://$MDM/$PAGE_INF | grep -A1 -i 'up \?time' | awk -F '<|>' '/time/ {txt=$3; gsub(/ time/,"time",txt); getline; up=tolower($3); gsub(/ /,"",up); printf "%s %s, ",txt,up}')
+info=$( $WGET http://$MDM/$PAGE_INF )
+uptime=$( echo "$info" | grep -A1 -i 'up \?time' | awk -F '<|>' '/time/ {txt=$3; gsub(/ time/,"time",txt); getline; up=tolower($3); gsub(/ /,"",up); printf "%s %s, ",txt,up}')
+load=$( echo "$info" | grep -A1 'Usage Info' | awk -F '<|>' '/CPU/ {getline; cpu=$3} /Memory/ {getline; mem=$3; printf "CPU: %s, MEM: %s",cpu,mem}')
 
 # if only uptime was requested just die with message and exitcode 0
 #
-[ $ACTION = "uptime" ] && die "Modem $MDM has $uptime" 0
+[ $ACTION = "uptime" ] && die "Modem $MDM has $uptime$load" 0
 
 # process guard was requested
 #
@@ -144,4 +148,4 @@ key=$( $WGET http://$MDM/$PAGE_KEY | grep 'var sessionKey=' | grep -o "[0-9]\+" 
 #
 msg=$( $WGET "http://$MDM/$PAGE_RBT?sessionKey=$key" | grep 'is rebooting' | sed -e 's/<br>//g' )
 
-msg "Modem $MDM has $uptime Reboot Request sessionKey($key) - Response($msg)"
+msg "Modem $MDM has $uptime$load - Reboot Request sessionKey($key) - Response($msg)"
