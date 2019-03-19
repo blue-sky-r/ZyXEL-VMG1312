@@ -13,11 +13,11 @@
 # reboot          ... perform reboot (see -gurad parameter above)
 # target          ... target device to reboot (hostname or ip address)
 #
-# intended for use on dd-wrt capable router, just copy to /jffs/bin/ directory
-# and setup a cron job (weekly/monthly) to reboot your ZyXEl VMG1312-B30B
-# https://wiki.dd-wrt.com/wiki/index.php/CRON
+# It is intended for use on dd-wrt capable router, just copy to /jffs/bin/ directory
+# and setup a cron job (weekly/monthly) to reboot your ZyXEl VMG1312-B30B:
+#   https://wiki.dd-wrt.com/wiki/index.php/CRON
 
-# login tries limit
+# default login tries limit
 #
 LIMIT=3
 
@@ -39,6 +39,10 @@ TAG="VDSL"
 #
 OUT="echo"
 
+# sleep in seconds between login tries
+#
+SLP=5
+
 # print/log message
 #
 msg()
@@ -56,7 +60,7 @@ die()
 
 # usage
 #
-[ $# -lt 2 ] && die "usage: $0 [-log|-log-tag tag] [-try limit] [-guard cmd] -user user:pass (uptime|reboot) target"
+[ $# -lt 2 ] && die "usage: $0 [-log-tag tag] [-log] [-try limit] [-guard cmd] -user user:pass (uptime|reboot) target"
 
 # cli pars parser
 #
@@ -105,16 +109,19 @@ i=0
 while ! $WGET http://$USRPSW@$MDM | grep -q "Broadband Router"
 do
 	i=$((i+1))
+	# if limit has been reached just die with error and exitcode 2
 	[ $i -ge $LIMIT ] && die "ERR - Modem $MDM login failed after $i attempts, check login/password" 2
+	# login attempt falied message
 	msg "WARNING - Modem $MDM login attempt $i from $LIMIT failed, keep trying ..."
-	sleep 5
+	# sleep between tries
+	sleep $SLP
 done
 
-# uptime
+# get uptime from info page
 #
 uptime=$( $WGET http://$MDM/$PAGE_INF | grep -A1 -i 'up \?time' | awk -F '<|>' '/time/ {txt=$3; gsub(/ time/,"time",txt); getline; up=tolower($3); gsub(/ /,"",up); printf "%s %s, ",txt,up}')
 
-# only uptime was requested
+# if only uptime was requested just die with message and exitcode 0
 #
 [ $ACTION = "uptime" ] && die "Modem $MDM has $uptime" 0
 
@@ -129,7 +136,7 @@ then
     [ -n "$psguard" ] && die "ERR - Modem $MDM Reboot not executed, $GUARD is running: $psguard" 3
 fi
 
-# get session key
+# get session key from page
 #
 key=$( $WGET http://$MDM/$PAGE_KEY | grep 'var sessionKey=' | grep -o "[0-9]\+" )
 
