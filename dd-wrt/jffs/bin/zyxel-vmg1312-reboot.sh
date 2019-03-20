@@ -21,17 +21,6 @@
 #
 LIMIT=3
 
-# VMG1312 web interface pages
-#
-PAGE_INF=info.html
-PAGE_KEY=resetrouter.html
-PAGE_RBT=rebootinfo.cgi
-
-# wget options - quiet, stdout
-#
-#WGET="wget -q -O -"
-WGET="wget -q --auth-no-challenge -O -"
-
 # default logger tag
 #
 TAG="VDSL"
@@ -43,6 +32,22 @@ OUT="echo"
 # sleep in seconds between login tries
 #
 SLP=5
+
+# VMG1312 web interface pages
+#
+PAGE_INF=info.html
+PAGE_KEY=resetrouter.html
+PAGE_RBT=rebootinfo.cgi
+
+# detect if executed on dd-wrt (returns DD-WRT)
+#
+os=$( nvram get router_name 2>/dev/null )
+
+# wget options - quiet, stdout
+#
+WGET="wget -q -O -"
+# disable challenge auth. outside of dd-wrt
+[ "$os" != 'DD-WRT' ] && WGET="$WGET --auth-no-challenge"
 
 # print/log message
 #
@@ -123,7 +128,7 @@ done
 #uptime=$( $WGET http://$MDM/$PAGE_INF | grep -A1 -i 'up \?time' | awk -F '<|>' '/time/ {txt=$3; gsub(/ time/,"time",txt); getline; up=tolower($3); gsub(/ /,"",up); printf "%s %s, ",txt,up}')
 info=$( $WGET http://$MDM/$PAGE_INF )
 uptime=$( echo "$info" | grep -A1 -i 'up \?time' | awk -F '<|>' '/time/ {txt=$3; gsub(/ time/,"time",txt); getline; up=tolower($3); gsub(/ /,"",up); printf "%s %s, ",txt,up}')
-load=$( echo "$info" | grep -A1 'Usage Info' | awk -F '<|>' '/CPU/ {getline; cpu=$3} /Memory/ {getline; mem=$3; printf "CPU: %s, MEM: %s",cpu,mem}')
+load=$( echo "$info" | grep -A1 'Usage Info' | awk -F '<|>' '/CPU/ {getline; cpu=$3} /Memory/ {getline; mem=$3; printf "CPU:%s MEM:%s",cpu,mem}')
 
 # if only uptime was requested just die with message and exitcode 0
 #
