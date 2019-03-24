@@ -3,6 +3,8 @@
 Simple and effective command line script for rebooting the ZyXEL VNG1312.
 It might work for other models too (depends on similarity of web interfaces).
 
+![VMG1312](https://github.com/blue-sky-r/ZyXEL-VMG1312/blob/master/screenshots/VMG1312-B30B.jpg)
+
 ### do I need this script
 
 ### why do we need this utility/script
@@ -27,10 +29,15 @@ So far there is no official solution from ZyXEL (and hardly it will ever be any)
 workaround is just from time-to-time to reboot/restart/power-cycle the ZyXEL modem.
 
 
-
     '''
     usage: zyxel-vmg1312-reboot.sh [-log-tag tag] [-log] [-try limit] [-guard cmd] -user user:pass (uptime|reboot) target
 
-    log-tag tag ... use tag tag for logging (default VDSL)
+    log-tag TAG    ... [optional] use tag TAG for logging (default VDSL)
+    log            ... [optional] output to syslog (for cron jobs etc) instead of stdout (default stdout)
+    try limit      ... [optional] try login max. limit times (default 3)
+    guard cmd      ... [optional] do not reboot reouter if comman cmd is running (for example wget downloading)
+    user user:pass ... [mandatory] valid login to VMG1312
+    uptime|reboot  ... [mandatory] either just get uptime or request reboot
+    target         ... VMG1312 local hostname or ip address
 
     '''
