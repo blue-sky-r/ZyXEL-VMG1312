@@ -6,13 +6,12 @@ the web interfaces).
 
 ![VMG1312](https://github.com/blue-sky-r/ZyXEL-VMG1312/blob/master/screenshots/VMG1312-B30B.jpg)
 
-### How does it work
+### ZyXEL VMG1312
 
-The script uses standard dd-wrt **wget**, **awk** and **grep** utilities to access ZyXEL VMG1312 web interface.
-The execution flow is quite simple:
-* login to info page
-* get session-key (required for requesting reboot)
-* request reboot (with session-key)
+ZyXEL VMG1312 is all-in-one SOHO solution (modem, router, WiFi AP) running internally linux.
+This device is just overloaded with features and when running as full router there are
+some serious memory/cpu load problems and is very unstable. However, when used in bridge mode,
+ZyXEl VMG1312 is very stable on ADSL/VDSL lines (with following exception).
 
 ### objective
 
@@ -20,13 +19,6 @@ This script is basically extension of the dd-wrt scheduled reboot capability. No
 schedule reboot also for xDSL modem. Reboot might be used as a workaround for various
 firmware flaws and bugs. Of course user can manually switch off-on the router, but this
 script can do it remotly and without user interaction if scheduled.
-
-### ZyXEL VMG1312
-
-ZyXEL VMG1312 is all-in-one SOHO solution (modem, router, WiFi AP) running internally linux.
-This device is just overloaded with features and when running as full router there are
-some serious memory/cpu load problems and is very unstable. However, when used in bridge mode,
-ZyXEl VMG1312 is very stable on ADSL/VDSL lines (with following exception).
 
 ### iPTV
 
@@ -40,6 +32,14 @@ is very annoying ...
 So far there is no official solution from ZyXEL (and hardly it will ever be any) so simple
 workaround is just from time-to-time to reboot/restart/power-cycle the ZyXEL modem.
 
+### How does it work
+
+The script uses standard dd-wrt **wget**, **awk** and **grep** utilities to access ZyXEL VMG1312 web interface.
+The execution flow is quite simple:
+* login to info page
+* get session-key (required for requesting reboot)
+* request reboot (with session-key)
+
 ### usage
 
 Script can be used manually from command line or scheduled by cron job. There are two modalities
@@ -51,6 +51,7 @@ There are many optional parametes (see bellow) and few mandatory ones:
 * password is valid login password for VMG1312 web interface
 * modality is either **uptime** or **reboot**
 * target is accessible modem web interafce
+
 
     '''
     usage: zyxel-vmg1312-reboot.sh [-log-tag tag] [-log] [-try limit] [-guard cmd] -user user:pass (uptime|reboot) target
