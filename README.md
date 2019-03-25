@@ -6,6 +6,8 @@ the web interfaces).
 
 ![VMG1312](../master/screenshots/VMG1312-B30B.jpg "ZyXEL VMG1312")
 
+![VMG1312](screenshots/VMG1312-B30B.jpg "ZyXEL VMG1312")
+
 ### ZyXEL VMG1312
 
 ZyXEL VMG1312 is all-in-one SOHO solution (modem, router, WiFi AP) running internally linux.
