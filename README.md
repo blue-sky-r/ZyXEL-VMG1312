@@ -4,7 +4,7 @@ Simple and effective command line script for rebooting the ZyXEL VMG1312.
 It might work for other models, however slight modification of grep patters might be required (depends on similarity of
 the web interfaces).
 
-![VMG1312](https://github.com/blue-sky-r/ZyXEL-VMG1312/blob/master/screenshots/VMG1312-B30B.jpg)
+![VMG1312](../blob/master/screenshots/VMG1312-B30B.jpg "ZyXEL VMG1312")
 
 ### ZyXEL VMG1312
 
@@ -40,6 +40,13 @@ The execution flow is quite simple:
 * get session-key (required for requesting reboot)
 * request reboot (with session-key)
 
+### requirements
+
+This script requires:
+* unix utilities (included in dd-wrt):
+  * wget, awk, grep, sed
+* access to modem web interface - this requires some config on VMG1312 and DD-WRT
+
 ### usage
 
 Script can be used manually from command line or scheduled by cron job. There are two modalities
@@ -47,11 +54,6 @@ currently implemented:
 * uptime modality just shows various uptime and load values (no reboot is executed)
 * reboot modality shows various uptime and load values and executes reboot
 There are many optional parametes (see bellow) and few mandatory ones:
-* user is valid login name for VMG1312 web interface
-* password is valid login password for VMG1312 web interface
-* modality is either **uptime** or **reboot**
-* target is accessible modem web interafce
-
 
     '''
     usage: zyxel-vmg1312-reboot.sh [-log-tag tag] [-log] [-try limit] [-guard cmd] -user user:pass (uptime|reboot) target
@@ -66,4 +68,21 @@ There are many optional parametes (see bellow) and few mandatory ones:
 
     '''
 
-## DD-WRT
+All outputs go to STDOUT by default (useful for debugging).
+By using -log parameter they are redirected to syslog (useful for cron jobs).
+
+## Modem in bridge mode - access to web interface
+
+Access to web interface to modem in bridge mode is very useful for statistical and management purposes.
+
+We have to assign some private subnet for LAN interface on modem site, for example 192.168.100.1/24:
+
+![VMG1312 LAN interface](https://github.com/blue-sky-r/ZyXEL-VMG1312/blob/master/screenshots/vmg1312-lan.png "VMG1312 LAN settings")
+
+Then on router / DD-WRT site we have to add another address from this subnet to WAN interface
+and also add postrouting iptables rule (for example 192.168.100.3/24):
+
+![dd-wrt](../blob/master/screenshots/dd-wrt.png "DD-WRT Administration")
+
+_NOTE: Of course you can use different subnets and different ip addresses_
+
