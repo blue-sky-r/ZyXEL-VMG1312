@@ -4,7 +4,7 @@ Simple and effective command line script for rebooting the ZyXEL VMG1312.
 It might work for other models, however slight modification of grep patters might be required (depends on similarity of
 the web interfaces).
 
-![VMG1312](../blob/master/screenshots/VMG1312-B30B.jpg "ZyXEL VMG1312")
+![VMG1312](../master/screenshots/VMG1312-B30B.jpg "ZyXEL VMG1312")
 
 ### ZyXEL VMG1312
 
