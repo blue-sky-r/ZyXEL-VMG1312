@@ -8,12 +8,13 @@ the web interfaces).
 
 ### ZyXEL VMG1312
 
-ZyXEL VMG1312 is all-in-one SOHO solution (modem, router, WiFi AP) running internally linux.
+ZyXEL VMG1312 is all-in-one SOHO solution (modem, router, WiFi AP) running internally on linux.
 This device is just overloaded with features and when running as full router there are
-some serious memory/cpu load problems and is very unstable. However, when used in bridge mode,
-ZyXEl VMG1312 is very stable on ADSL/VDSL lines (with following connection establishment issue).
+some serious memory/cpu load problems and is very unstable. However, when used only in bridge mode,
+ZyXEl VMG1312 is quite stable on ADSL/VDSL lines and it is very friendly price-wise (with the
+exception of connection issue described in [iPTV](#iPTV) section).
 
-### objective
+### Objective
 
 This script is basically extension of the **DD-WRT** scheduled reboot capability. Now we can
 schedule reboot also for xDSL modem. Reboot might be used as a workaround for various
@@ -48,14 +49,15 @@ ZyXEL VMG1312 Device Info Page contains various uptime and cpu/memory load info.
 
 ZyXEL VMG1312 Reboot Page for manual reboot by clicking the button.
 
-### requirements
+### Requirements
 
 This script requires:
 * unix utilities (included in dd-wrt):
   * wget, awk, grep, sed
-* access to modem web interface - this requires some [config on VMG1312 and DD-WRT][#Modem in bridge mode - access to web interface] when modem is in bridge mode
+* access to modem web interface - this requires some [config on VMG1312 and DD-WRT](#Modem in bridge mode - access to web interface) 
+when modem is in bridge mode
 
-## usage
+## Usage
 
 Script can be used manually from command line or scheduled by cron job. There are two modalities
 currently implemented:
@@ -64,7 +66,6 @@ currently implemented:
 
 There are many optional parametes (see bellow) and few mandatory ones:
 
-    '''
     usage: zyxel-vmg1312-reboot.sh [-log|-log-tag tag] [-try limit] [-guard cmd] -user user:pass (uptime|reboot) target
 
     -log            ... (optional) log script output to syslog instead to stdout (usefull when executing from cron)
@@ -72,10 +73,9 @@ There are many optional parametes (see bellow) and few mandatory ones:
     -try limit      ... (optional) limit login tries to limit (default 3)
     -guard cmd      ... (optional) do not reboot target if cmd is running (download ia wget/curl etc)
     -user user:pass ... valid login for target device separated by :
-    uptime          ... only show target uptime, do not reboot (usefull for checking if target was recently rebooted)
+    uptime          ... only show target uptime/load, do not reboot (usefull for checking if target was recently rebooted)
     reboot          ... perform reboot (see -gurad parameter above)
     target          ... target device to reboot (hostname or ip address)
-    '''
 
 All outputs go to STDOUT by default (useful for debugging).
 By using -log parameter they are redirected to syslog (useful for cron jobs).
@@ -93,8 +93,8 @@ and also add postrouting iptables rule (for example 192.168.100.3/24):
 
 ![dd-wrt](screenshots/dd-wrt.png "DD-WRT Administration")
 
-_NOTE: The private subnet 192.168.100.X and ip addresses 192.168.100.1, 192.168.100.3 are just example what I'm using.
-You can choose different subnets and different ip addresses_
+_NOTE: The private subnet 192.168.100.X and ip addresses 192.168.100.1, 192.168.100.3 are just an example of my current config.
+You can choose different subnets and different ip addresses without any problems_
 
 ### Scheduling by cron
 
@@ -102,11 +102,10 @@ Cron functionality is built-in in DD-WRT. There is even web interface to edit cr
 
 ![dd-wrt](screenshots/dd-wrt-cron.png "DD-WRT cron edit")
 
-The screenshots shows scheduled cron job to reboot router every Thursay at 03:33 AM by executing this command as root:
+The screenshot shows the scheduled cron job to reboot router every Thursay at 03:33 AM by executing this command as root
+(output to syslog, check for running instances of wget, do reboot for target 192.168.100.1):
 
-    '''
     /jffs/bin/zyxel-vmg1312-reboot.sh -log -user user:password -guard wget reboot 192.168.100.1
-    '''
 
 More details about cron functionality on DD-WRT [wiki](https://wiki.dd-wrt.com/wiki/index.php/CRON)
 
