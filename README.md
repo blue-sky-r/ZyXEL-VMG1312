@@ -12,7 +12,7 @@ ZyXEL VMG1312 is all-in-one SOHO solution (modem, router, WiFi AP) running inter
 This device is just overloaded with features and when running as full router there are
 some serious memory/cpu load problems and is very unstable. However, when used only in bridge mode,
 ZyXEl VMG1312 is quite stable on ADSL/VDSL lines and it is very friendly price-wise (with the
-exception of connection issue described in [iPTV](#iPTV) section).
+exception of connection issue described in [iPTV](#iptv) section).
 
 ### Objective
 
@@ -54,7 +54,7 @@ ZyXEL VMG1312 Reboot Page for manual reboot by clicking the button.
 This script requires:
 * unix utilities (included in dd-wrt):
   * wget, awk, grep, sed
-* access to modem web interface - this requires some [config on VMG1312 and DD-WRT](#Modem in bridge mode - access to web interface) 
+* access to modem web interface - this requires some [config on VMG1312 and DD-WRT](#modem-in-bridge-mode---access-to-web-interface) 
 when modem is in bridge mode
 
 ## Usage
