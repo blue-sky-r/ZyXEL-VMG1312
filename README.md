@@ -41,11 +41,11 @@ The execution flow is quite simple:
 * get session-key (required for requesting reboot)
 * request reboot (with session-key)
 
-![VMG1312](screenshots/vmg1312-device-info.png "ZyXEL VMG1312 Device Info Page")
+![VMG1312-info](screenshots/vmg1312-device-info.png "ZyXEL VMG1312 Device Info Page")
 
 ZyXEL VMG1312 Device Info Page contains various uptime and cpu/memory load info.
 
-![VMG1312](screenshots/vmg1312-reboot.png "ZyXEL VMG1312 Reboot Page")
+![VMG1312-reboot](screenshots/vmg1312-reboot.png "ZyXEL VMG1312 Reboot Page")
 
 ZyXEL VMG1312 Reboot Page for manual reboot by clicking the button.
 
@@ -56,6 +56,17 @@ This script requires:
   * wget, awk, grep, sed
 * access to modem web interface - this requires some [config on VMG1312 and DD-WRT](#modem-in-bridge-mode---access-to-web-interface) 
 when modem is in bridge mode
+
+### Install
+
+To install on DD-WRT follow the steps:
+* copy the script to suitable location (for example /jffs/bin), other suitable locations are (from default PATH):
+  * /jffs/sbin:/jffs/bin:/jffs/usr/sbin:/jffs/usr/bin
+  * /mmc/sbin:/mmc/bin:/mmc/usr/sbin:/mmc/usr/bin
+  * /opt/sbin:/opt/bin:/opt/usr/sbin:/opt/usr/bin
+* set executable flag if not set
+* optional - test execution from command line
+* optional - setup the cron job (cron command line or [web interface](#scheduling-by-cron))
 
 ## Usage
 
@@ -84,41 +95,46 @@ By using -log parameter they are redirected to syslog (useful for cron jobs).
 
 Access to web interface to modem in bridge mode is very useful for statistical and management purposes.
 
+    Modem VMG1312
+    
 We have to assign some private subnet for LAN interface on modem site, for example 192.168.100.1/24:
 
-![VMG1312 LAN interface](screenshots/vmg1312-lan.png "VMG1312 LAN settings")
+![VMG1312-lan](screenshots/vmg1312-lan.png "VMG1312 LAN settings")
 
-Then on router / DD-WRT site we have to add another address from this subnet to WAN interface
+    DD-WRT Router
+    
+Then on the router / DD-WRT site we have to add another address from this subnet to WAN interface
 and also add postrouting iptables rule (for example 192.168.100.3/24):
 
-![dd-wrt](screenshots/dd-wrt.png "DD-WRT Administration")
+![dd-wrt-admin](screenshots/dd-wrt.png "DD-WRT Administration")
 
 _NOTE: The private subnet 192.168.100.X and ip addresses 192.168.100.1, 192.168.100.3 are just an example of my current config.
 You can choose different subnets and different ip addresses without any problems_
 
-### Scheduling by cron
+### Cron scheduler
 
 Cron functionality is built-in in DD-WRT. There is even web interface to edit cron jobs:
 
-![dd-wrt](screenshots/dd-wrt-cron.png "DD-WRT cron edit")
+![dd-wrt-cron](screenshots/dd-wrt-cron.png "DD-WRT cron edit")
 
 The screenshot shows the scheduled cron job to reboot router every Thursay at 03:33 AM by executing this command as root
-(output to syslog, check for running instances of wget, do reboot for target 192.168.100.1):
+(output to syslog, check for running instances of wget and skip reboot if running for target 192.168.100.1):
 
     /jffs/bin/zyxel-vmg1312-reboot.sh -log -user user:password -guard wget reboot 192.168.100.1
 
 More details about cron functionality on DD-WRT [wiki](https://wiki.dd-wrt.com/wiki/index.php/CRON)
 
-## possible future improvements
+## Possible future improvements
 
 * detect when issue is present:
 The more sophisticated way would be to detect connection establishment delay by some script
-and reboot VMG1312 modem only when neccessary (if delay is over limit). In my experience this modem runs well for
-a few weeks (3-5) until the problem manifests. So periodic rebooting weekly should solve the issue. There is
-always a possibility of increase the frequency of rebooting up to daily.
+and reboot VMG1312 modem only when neccessary (if connection delay to some reference host is over the limit). 
+In my experience this modem runs well for a few weeks (3-5) until the problem manifests. So periodic rebooting 
+weekly should solve the issue and there is always a possibility to increase the frequency of rebooting (daily).
 
 * implement fix/workaround directly on VMG1312 modem:
 The VMG1312 runs linux so there should be a way to better diagnose the problem and try to implement
-a fix or workaround directly on the VMG1312. Then there would be no need for scheduled rebooting.
+a fix or workaround directly on the VMG1312. Then there would be no need for scheduled rebooting. Unfortunately
+ZyXEL does not provide source code of the VMG1312 firmware.
 
-### keywords: zyxel, vmg1312, vdsl, adsl, modem, bridge, dd-wrt
+_keywords: zyxel, vmg1312, vdsl, adsl, modem, bridge, dd-wrt_
