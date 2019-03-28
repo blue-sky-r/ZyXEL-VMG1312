@@ -1,8 +1,8 @@
 ## Reboot ZyXEL VMG1312 from command line
 
 Simple and effective command line script for rebooting the ZyXEL VMG1312.
-It might work for other models, however slight modification of grep patters might be required (depends on similarity of
-the web interfaces).
+It might work for other models too, however slight modification of grep patters might be required (depends on 
+similarity of the web interfaces).
 
 ![VMG1312](screenshots/VMG1312-B30B.jpg "ZyXEL VMG1312")
 
@@ -24,22 +24,24 @@ script can do it remotely and without user interaction if scheduled.
 ### iPTV
 
 Router/modem ZyXEl VMG1312-B30B has some bug/flaw even in the latest firmware. After few weeks of uptime
-the VMG1312 brings slight delay when establishing a connection. Might be caused by some unreeased
-connection structures in memory so it takes longer and longer to allocate new connection structure.
-Under normal usage like browsing it is somehow noticeable, however for iPTV even such a small delay is
-causing picture freezing for a few seconds as hls buffer underflows. And this iPTV video/audio freezing
-is very annoying and was the main motivation for this script to implement ...
+the VMG1312 manifests slight delay when establishing a new connection. Might be caused by some unreleased
+connection structures in memory so it takes longer and longer to allocate new connection structure with 
+increasing uptime. Under normal usage like browsing it is somehow noticeable, however for iPTV even such 
+a small delay is causing picture freezing for a few seconds as hls buffer underflows. And this iPTV video/audio 
+freezing is very annoying and was the main motivation for this script to implement ...
 
 So far there is no official solution from ZyXEL (and hardly it will ever be) so simple
-workaround is just from time-to-time to reboot/restart/power-cycle the ZyXEL modem.
+workaround is just from time-to-time to reboot/restart/power-cycle the ZyXEL VMG1312 modem.
 
 ### How does it work
 
-The script uses standard DD-WRT **wget**, **awk** and **grep** utilities to access ZyXEL VMG1312 web interface.
+The script uses standard DD-WRT **wget**, **awk** and **grep** utilities to access ZyXEL VMG1312 web interface and 
+extracting useful data from html pages.
+
 The execution flow is quite simple:
-* login to info page
+* login to the info page
 * get session-key (required for requesting reboot)
-* request reboot (with session-key)
+* request reboot (with valid session-key)
 
 ![VMG1312-info](screenshots/vmg1312-device-info.png "ZyXEL VMG1312 Device Info Page")
 
@@ -52,21 +54,21 @@ ZyXEL VMG1312 Reboot Page for manual reboot by clicking the button.
 ### Requirements
 
 This script requires:
-* unix utilities (included in dd-wrt):
+* basic unix utilities (included in dd-wrt):
   * wget, awk, grep, sed
-* access to modem web interface - this requires some [config on VMG1312 and DD-WRT](#modem-in-bridge-mode---access-to-web-interface) 
-when modem is in bridge mode
+* access to modem web interface - this requires some additional [config on VMG1312 and DD-WRT](#modem-in-bridge-mode---access-to-web-interface) 
+when modem is in the bridge mode
 
 ### Install
 
 To install on DD-WRT follow the steps:
-* copy the script to suitable location (for example /jffs/bin), other suitable locations are (from default PATH):
+* copy the script to the suitable location (for example /jffs/bin), other suitable locations are (from default PATH):
   * /jffs/sbin:/jffs/bin:/jffs/usr/sbin:/jffs/usr/bin
   * /mmc/sbin:/mmc/bin:/mmc/usr/sbin:/mmc/usr/bin
   * /opt/sbin:/opt/bin:/opt/usr/sbin:/opt/usr/bin
 * set executable flag if not set
 * optional - test execution from command line
-* optional - setup the cron job (cron command line or [web interface](#scheduling-by-cron))
+* optional - setup the cron job (from command line or [web interface](#cron-scheduler))
 
 ## Usage
 
@@ -133,7 +135,7 @@ In my experience this modem runs well for a few weeks (3-5) until the problem ma
 weekly should solve the issue and there is always a possibility to increase the frequency of rebooting (daily).
 
 * implement fix/workaround directly on VMG1312 modem:
-The VMG1312 runs linux so there should be a way to better diagnose the problem and try to implement
+The VMG1312 runs on linux so there should be a way to better diagnose the problem and try to implement
 a fix or workaround directly on the VMG1312. Then there would be no need for scheduled rebooting. Unfortunately
 ZyXEL does not provide source code of the VMG1312 firmware.
 
