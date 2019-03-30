@@ -9,7 +9,7 @@
 # -try limit      ... (optional) limit login tries to limit (default 3)
 # -guard cmd      ... (optional) do not reboot target if cmd is running (download ia wget/curl etc)
 # -user user:pass ... valid login for target device separated by :
-# uptime          ... only show target uptime, do not reboot (usefull for checking if target was recently rebooted)
+# uptime          ... only show target uptime/load, do not reboot (usefull for checking if target was recently rebooted)
 # reboot          ... perform reboot (see -gurad parameter above)
 # target          ... target device to reboot (hostname or ip address)
 #
@@ -28,6 +28,10 @@ TAG="VDSL"
 # default output to stdout
 #
 OUT="echo"
+
+# version
+#
+VERSION="2019.3"
 
 # sleep in seconds between login tries
 #
@@ -115,19 +119,20 @@ i=0
 while ! $WGET http://$USRPSW@$MDM | grep -q "Broadband Router"
 do
 	i=$((i+1))
-	# if limit has been reached just die with error and exitcode 2
-	[ $i -ge $LIMIT ] && die "ERR - Modem $MDM login failed after $i attempts, check login/password" 2
 	# login attempt falied message
-	msg "WARNING - Modem $MDM login attempt $i from $LIMIT failed, keep trying ..."
+	msg "WARNING - Modem $MDM login attempt $i from $LIMIT failed, keep trying after $SLP sec ..."
+	# if limit has been reached just die with error and exitcode 2
+	[ $i -ge $LIMIT ] && die "ERR - Modem $MDM login failed after $i attempts, check login/password/target" 2
 	# sleep between tries
 	sleep $SLP
 done
 
 # get uptime, cpu/mem usage from info page
 #
-#uptime=$( $WGET http://$MDM/$PAGE_INF | grep -A1 -i 'up \?time' | awk -F '<|>' '/time/ {txt=$3; gsub(/ time/,"time",txt); getline; up=tolower($3); gsub(/ /,"",up); printf "%s %s, ",txt,up}')
 info=$( $WGET http://$MDM/$PAGE_INF )
+# uptime
 uptime=$( echo "$info" | grep -A1 -i 'up \?time' | awk -F '<|>' '/time/ {txt=$3; gsub(/ time/,"time",txt); getline; up=tolower($3); gsub(/ /,"",up); printf "%s %s, ",txt,up}')
+# load
 load=$( echo "$info" | grep -A1 'Usage Info' | awk -F '<|>' '/CPU/ {getline; cpu=$3} /Memory/ {getline; mem=$3; printf "CPU:%s MEM:%s",cpu,mem}')
 
 # if only uptime was requested just die with message and exitcode 0
