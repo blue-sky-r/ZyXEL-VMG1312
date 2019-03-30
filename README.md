@@ -81,13 +81,13 @@ currently implemented:
     WARNING - Modem mdm login attempt 1 from 3 failed, keep trying ...
     Modem mdm has Uptime 6d7h26m38s, DSL Uptime: 6d7h25m29s, PPP Uptime: 0d0h0m0s, CPU:5.50% MEM:93%
     
-Displays:
-   * the first failed login attempt as WARNING - Modem mdm login attempt 1 from 3 failed, keep trying ...
-   * modem uptime 6d_7h_26m_38s (6 days, 7 hours, 26 minutes, 38 seconds)
-   * xDSL  uptime 6d_7h_25m_29s (6 days, 7 hours, 26 minutes, 29 seconds) implies xDSL login took 9 seconds
-   * PPP   uptime 0d_0h__0m__0s due to VMG1312 bridge-mode ()PPP is handled by DD-WRT in PPPoE settings)
-   * CPU load (utilization) 5.5%
-   * Memory load (utilization) 93%
+    Output explained:
+    * the first failed login attempt as WARNING - Modem mdm login attempt 1 from 3 failed, keep trying ...
+    * modem uptime 6d_7h_26m_38s (6 days, 7 hours, 26 minutes, 38 seconds)
+    * xDSL  uptime 6d_7h_25m_29s (6 days, 7 hours, 26 minutes, 29 seconds) implies xDSL login took 9 seconds
+    * PPP   uptime 0d_0h__0m__0s due to VMG1312 bridge-mode (PPP is handled by DD-WRT in PPPoE settings)
+    * CPU load (utilization) 5.5%
+    * Memory load (utilization) 93%
     
 * *reboot* modality - shows various uptime and load values and executes reboot
 
@@ -105,7 +105,15 @@ There are many optional parametes (see bellow) and few mandatory ones:
     target          ... target device to reboot (hostname or ip address)
 
 All outputs go to STDOUT by default (useful for debugging).
-By using -log parameter they are redirected to syslog (useful for cron jobs).
+Use -log or -log-tag parameter they to redirect output to syslog (useful for cron jobs).
+
+Shell exitcodes:
+
+    0 ... ok (uptime shown / reboot requested)
+    1 ... usage help
+    2 ... login failed (tries limit reached)
+    3 ... guarding process active/running, reboot not executed
+    4 ... parameters validation failed (invalid action, malformatted login:password)
 
 ### Modem in bridge mode - access to web interface
 
