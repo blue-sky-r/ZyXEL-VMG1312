@@ -13,6 +13,13 @@
 # reboot          ... perform reboot (see -gurad parameter above)
 # target          ... target device to reboot (hostname or ip address)
 #
+# Exitcodes:
+#  0 ... ok (uptime shown / reboot requested)
+#  1 ... usage help
+#  2 ... login failed (tries limit reached)
+#  3 ... guarding process active/running, reboot not executed
+#  4 ... parameters validation failed (invalid action, malformatted login:password)
+#
 # It is intended for use on dd-wrt capable router, just copy to /jffs/bin/ directory
 # and setup a cron job (weekly/monthly) to reboot your ZyXEl VMG1312-B30B:
 #   https://wiki.dd-wrt.com/wiki/index.php/CRON
@@ -31,7 +38,7 @@ OUT="echo"
 
 # version
 #
-VERSION="2019.3"
+VERSION="2019.3.30"
 
 # sleep in seconds between login tries
 #
@@ -70,7 +77,7 @@ die()
 
 # usage
 #
-[ $# -lt 2 ] && die "usage: $0 [-log-tag tag] [-log] [-try limit] [-guard cmd] -user user:pass (uptime|reboot) target"
+[ $# -lt 2 ] && die "usage: $0 [-log|-log-tag tag] [-try limit] [-guard cmd] -user user:pass (uptime|reboot) target"
 
 # cli pars parser
 #
@@ -107,11 +114,11 @@ done
 
 # validate action
 #
-[ $ACTION != "uptime" ] && [ $ACTION != "reboot" ] && die "ERR - Unknown action:$ACTION, see usage help ..."
+[ $ACTION != "uptime" ] && [ $ACTION != "reboot" ] && die "ERR - Unknown action:$ACTION, see usage help ..." 4
 
 # validate login (non empty and contains separator :)
 #
-([ -z "$USRPSW" ] || [ -z $(echo $USRPSW | cut -d: -f2) ]) && die "ERR - Empty/invalid format login/password:$USRPSW, see usage help ..."
+([ -z "$USRPSW" ] || [ -z $(echo $USRPSW | cut -d: -f2) ]) && die "ERR - Empty/malformatted format login/password:$USRPSW, see usage help ..." 4
 
 # try to login to main page, limit tries to $LIMIT
 #
@@ -130,12 +137,12 @@ done
 # get uptime, cpu/mem usage from info page
 #
 info=$( $WGET http://$MDM/$PAGE_INF )
-# uptime
+# hw/xdsl/ppp uptime
 uptime=$( echo "$info" | grep -A1 -i 'up \?time' | awk -F '<|>' '/time/ {txt=$3; gsub(/ time/,"time",txt); getline; up=tolower($3); gsub(/ /,"",up); printf "%s %s, ",txt,up}')
-# load
+# mem/cpu load
 load=$( echo "$info" | grep -A1 'Usage Info' | awk -F '<|>' '/CPU/ {getline; cpu=$3} /Memory/ {getline; mem=$3; printf "CPU:%s MEM:%s",cpu,mem}')
 
-# if only uptime was requested just die with message and exitcode 0
+# only uptime was requested - just die with message and exitcode 0
 #
 [ $ACTION = "uptime" ] && die "Modem $MDM has $uptime$load" 0
 
@@ -146,7 +153,7 @@ then
     # check if process is running
     psguard=$( ps | grep "$GUARD" | grep -v "grep" | grep -v $0 )
 
-    # if running, exit with error
+    # if running, exit with error 1
     [ -n "$psguard" ] && die "ERR - Modem $MDM Reboot not executed, $GUARD is running: $psguard" 3
 fi
 
