@@ -120,7 +120,7 @@ done
 #
 ([ -z "$USRPSW" ] || [ -z $(echo $USRPSW | cut -d: -f2) ]) && die "ERR - Empty/malformatted format login/password:$USRPSW, see usage help ..." 4
 
-# try to login to main page, limit tries to $LIMIT
+# try to login to main page, limit tries to $LIMIT - for some reason (cookie ?) the first login attempt usually fails
 #
 i=0
 while ! $WGET http://$USRPSW@$MDM | grep -q "Broadband Router"
