@@ -104,8 +104,8 @@ There are many optional parametes (see bellow) and few mandatory ones:
     reboot          ... perform reboot (see -gurad parameter above)
     target          ... target device to reboot (hostname or ip address)
 
-All outputs go to STDOUT by default (useful for debugging).
-Use -log or -log-tag parameter they to redirect output to syslog (useful for cron jobs).
+All outputs go to STDOUT by default (useful for debugging). Use -log or -log-tag parameter to redirect output to 
+syslog (useful for cron jobs).
 
 Shell exitcodes:
 
@@ -141,7 +141,7 @@ Cron functionality is built-in in DD-WRT. There is even web interface to edit cr
 
 ![dd-wrt-cron](screenshots/dd-wrt-cron.png "DD-WRT cron edit")
 
-The screenshot shows the scheduled cron job to reboot router every Thursay at 03:33 AM by executing this command as root
+The screenshot shows the scheduled cron job to reboot router every Wednesday at 03:33 AM by executing this command as root
 (output to syslog, check for running instances of wget and skip reboot if running for target 192.168.100.1):
 
     /jffs/bin/zyxel-vmg1312-reboot.sh -log -user user:password -guard wget reboot 192.168.100.1
@@ -150,7 +150,7 @@ More details about cron functionality on DD-WRT [wiki](https://wiki.dd-wrt.com/w
 
 ## Possible future improvements
 
-* detect when issue is present:
+* detect when connection issue is present:
 The more sophisticated way would be to detect connection establishment delay by some script
 and reboot VMG1312 modem only when neccessary (if connection delay to some reference host is over the limit). 
 In my experience this modem runs well for a few weeks (3-5) until the problem manifests. So periodic rebooting 
