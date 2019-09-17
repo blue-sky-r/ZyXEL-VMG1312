@@ -33,6 +33,11 @@ freezing is very annoying and was the main motivation for this script to impleme
 So far there is no official solution from ZyXEL (and hardly it will ever be) so simple
 workaround is just from time-to-time to reboot/restart/power-cycle the ZyXEL VMG1312 modem.
 
+Here are a few candidates with possibility to cause this issue:
+
+* PPPoE Session-ID caching bug in Bridge mode - [https://www.spinics.net/lists/linux-ppp/msg01735.html](mailing list)
+* List of known VMG1312 bugs - [https://support.aa.net.uk/VMG1312-B10A:_Bugs](AA support.aa.net.uk)
+
 ### How does it work
 
 The script uses standard DD-WRT **wget**, **awk** and **grep** utilities to access ZyXEL VMG1312 web interface and 
