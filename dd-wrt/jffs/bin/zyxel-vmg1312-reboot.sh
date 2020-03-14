@@ -2,7 +2,7 @@
 
 # force reboot of VDSL modem [ ZyXEL VMG1312 in bridge mode ] from command line (cron)
 #
-# usage: $0 [-log|-log-tag tag] [-try limit] [-guard cmd] -user user:pass (uptime|reboot) target
+# usage: $0 [-log|-log-tag tag] [-try limit] [-guard cmd] -user user:pass (uptime|reboot|reboot+) target
 #
 # -log            ... (optional) log script output to syslog instead to stdout (usefull when executing from cron)
 # -log-tag tag    ... (optional) log to syslog (see -log above) with specific tag (default tag is VDSL)
@@ -10,7 +10,8 @@
 # -guard cmd      ... (optional) do not reboot target if cmd is running (download ia wget/curl etc)
 # -user user:pass ... valid login for target device separated by :
 # uptime          ... only show target uptime/load, do not reboot (usefull for checking if target was recently rebooted)
-# reboot          ... perform reboot (see -gurad parameter above)
+# reboot          ... perform target reboot (see -gurad parameter above)
+# reboot+         ... perform target and self reboot (see -gurad parameter above)
 # target          ... target device to reboot (hostname or ip address)
 #
 # Exitcodes:
@@ -38,11 +39,15 @@ OUT="echo"
 
 # version
 #
-VERSION="2019.3.30"
+VERSION="2020.3.14"
 
 # sleep in seconds between login tries
 #
 SLP=5
+
+# self-reboot delay
+#
+SRDEL=10
 
 # VMG1312 web interface pages
 #
@@ -57,8 +62,8 @@ os=$( nvram get router_name 2>/dev/null )
 # wget options - quiet, stdout
 #
 WGET="wget -q -O -"
-# disable challenge auth. outside of dd-wrt
-[ "$os" != 'DD-WRT' ] && WGET="$WGET --auth-no-challenge"
+# disable challenge auth. outside of dd-wrt and tomato-usb
+[ "$os" != 'DD-WRT' -o "$os" != 'TomatoUSB' ] && WGET="$WGET --auth-no-challenge"
 
 # print/log message
 #
@@ -134,7 +139,7 @@ do
 	sleep $SLP
 done
 
-# get uptime, cpu/mem usage from info page
+# get uptime and cpu/mem usage from the info page
 #
 info=$( $WGET http://$MDM/$PAGE_INF )
 # hw/xdsl/ppp uptime
@@ -142,7 +147,7 @@ uptime=$( echo "$info" | grep -A1 -i 'up \?time' | awk -F '<|>' '/time/ {txt=$3;
 # mem/cpu load
 load=$( echo "$info" | grep -A1 'Usage Info' | awk -F '<|>' '/CPU/ {getline; cpu=$3} /Memory/ {getline; mem=$3; printf "CPU:%s MEM:%s",cpu,mem}')
 
-# only uptime was requested - just die with message and exitcode 0
+# only uptime was requested - just die with the status message and exitcode 0
 #
 [ $ACTION = "uptime" ] && die "Modem $MDM has $uptime$load" 0
 
@@ -150,19 +155,28 @@ load=$( echo "$info" | grep -A1 'Usage Info' | awk -F '<|>' '/CPU/ {getline; cpu
 #
 if [ -n "$GUARD" ]
 then
-    # check if process is running
+    # check if guard process is running
     psguard=$( ps | grep "$GUARD" | grep -v "grep" | grep -v $0 )
 
     # if running, exit with error 1
     [ -n "$psguard" ] && die "ERR - Modem $MDM Reboot not executed, $GUARD is running: $psguard" 3
 fi
 
-# get session key from page
+# get the session key from html page
 #
 key=$( $WGET http://$MDM/$PAGE_KEY | grep 'var sessionKey=' | grep -o "[0-9]\+" )
 
-# reboot
+# reboot target
 #
 msg=$( $WGET "http://$MDM/$PAGE_RBT?sessionKey=$key" | grep 'is rebooting' | sed -e 's/<br>//g' )
 
 msg "Modem $MDM has $uptime$load - Reboot Request sessionKey($key) - Response($msg)"
+
+# optional self-reboot
+#
+if [ $ACTION = "reboot+" ]
+then
+    msg "Self-rebooting in $SRDEL as requested by action($ACTION) ..."
+    sleep $SRDEL
+    reboot
+fi
