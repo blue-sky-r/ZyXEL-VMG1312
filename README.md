@@ -41,12 +41,13 @@ Here are a few candidates with possibility to cause this issue:
 ### How does it work
 
 The script uses standard DD-WRT **wget**, **awk** and **grep** utilities to access ZyXEL VMG1312 web interface and 
-extracting useful data from html pages.
+extracting useful data from the html pages.
 
 The execution flow is quite simple:
 * login to the info page
 * get session-key (required for requesting reboot)
 * request reboot (with valid session-key)
+* optional self-reboot after delay
 
 ![VMG1312-info](screenshots/vmg1312-device-info.png "ZyXEL VMG1312 Device Info Page")
 
@@ -96,9 +97,9 @@ currently implemented:
     
 * *reboot* modality - shows various uptime and load values and executes reboot
 
-There are many optional parametes (see bellow) and few mandatory ones:
+There are many optional parametes (see bellow) and few mandatory ones (action, target):
 
-    usage: zyxel-vmg1312-reboot.sh [-log|-log-tag tag] [-try limit] [-guard cmd] -user user:pass (uptime|reboot) target
+    usage: zyxel-vmg1312-reboot.sh [-log|-log-tag tag] [-try limit] [-guard cmd] -user user:pass (uptime|reboot[+]) target
 
     -log            ... (optional) log script output to syslog instead to stdout (usefull when executing from cron)
     -log-tag tag    ... (optional) log to syslog (see -log above) with specific tag (default tag is VDSL)
@@ -107,7 +108,10 @@ There are many optional parametes (see bellow) and few mandatory ones:
     -user user:pass ... valid login for target device separated by :
     uptime          ... only show target uptime/load, do not reboot (usefull for checking if target was recently rebooted)
     reboot          ... perform reboot (see -gurad parameter above)
+    reboot+         ... perform target reboot and delayed self reboot (see -gurad parameter above)
     target          ... target device to reboot (hostname or ip address)
+
+* *reboot+* modality - as *reboot* described above plus self-reboot is executed after predefined delay (self-reboot-delay SRDEL variable)
 
 All outputs go to STDOUT by default (useful for debugging). Use -log or -log-tag parameter to redirect output to 
 syslog (useful for cron jobs).
