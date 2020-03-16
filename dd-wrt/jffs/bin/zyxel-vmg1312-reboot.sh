@@ -11,7 +11,7 @@
 # -user user:pass ... valid login for target device separated by :
 # uptime          ... only show target uptime/load, do not reboot (usefull for checking if target was recently rebooted)
 # reboot          ... perform target reboot (see -gurad parameter above)
-# reboot+         ... perform target and self reboot (see -gurad parameter above)
+# reboot+         ... perform target reboot and delayed self reboot (see -gurad parameter above)
 # target          ... target device to reboot (hostname or ip address)
 #
 # Exitcodes:
@@ -39,7 +39,7 @@ OUT="echo"
 
 # version
 #
-VERSION="2020.3.14"
+VERSION="2020.3.15"
 
 # sleep in seconds between login tries
 #
@@ -47,7 +47,7 @@ SLP=5
 
 # self-reboot delay
 #
-SRDEL=10
+SRDEL=7
 
 # VMG1312 web interface pages
 #
@@ -55,15 +55,15 @@ PAGE_INF=info.html
 PAGE_KEY=resetrouter.html
 PAGE_RBT=rebootinfo.cgi
 
-# detect if executed on dd-wrt (returns DD-WRT)
+# machine name / platform (mips for router like DD-WRT, TOMATO) (i686 for desktop)
 #
-os=$( nvram get router_name 2>/dev/null )
+hw=$( uname -m )
 
 # wget options - quiet, stdout
 #
 WGET="wget -q -O -"
-# disable challenge auth. outside of dd-wrt and tomato-usb
-[ "$os" != 'DD-WRT' -o "$os" != 'TomatoUSB' ] && WGET="$WGET --auth-no-challenge"
+# disable challenge auth. outside of mips platform
+[ "$hw" != 'mips' ] && WGET="$WGET --auth-no-challenge"
 
 # print/log message
 #
@@ -82,7 +82,7 @@ die()
 
 # usage
 #
-[ $# -lt 2 ] && die "usage: $0 [-log|-log-tag tag] [-try limit] [-guard cmd] -user user:pass (uptime|reboot) target"
+[ $# -lt 2 ] && die "usage: $0 [-log|-log-tag tag] [-try limit] [-guard cmd] -user user:pass (uptime|reboot[+]) target"
 
 # cli pars parser
 #
@@ -119,7 +119,7 @@ done
 
 # validate action
 #
-[ $ACTION != "uptime" ] && [ $ACTION != "reboot" ] && die "ERR - Unknown action:$ACTION, see usage help ..." 4
+[ $ACTION != "uptime" -a $ACTION != "reboot" -a $ACTION != "reboot+" ] && die "ERR - Unknown action:$ACTION, see usage help ..." 4
 
 # validate login (non empty and contains separator :)
 #
