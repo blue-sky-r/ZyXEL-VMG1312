@@ -39,7 +39,7 @@ OUT="echo"
 
 # version
 #
-VERSION="2020.3.15"
+VERSION="2021.1.21"
 
 # sleep in seconds between login tries
 #
@@ -156,7 +156,7 @@ load=$( echo "$info" | grep -A1 'Usage Info' | awk -F '<|>' '/CPU/ {getline; cpu
 if [ -n "$GUARD" ]
 then
     # check if guard process is running
-    psguard=$( ps | grep "$GUARD" | grep -v "grep" | grep -v $0 )
+    psguard=$( ps | grep "$GUARD" | grep -v "grep" | grep -v "$0" )
 
     # if running, exit with error 1
     [ -n "$psguard" ] && die "ERR - Modem $MDM Reboot not executed, $GUARD is running: $psguard" 3
