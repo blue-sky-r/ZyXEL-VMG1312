@@ -39,7 +39,7 @@ OUT="echo"
 
 # version
 #
-VERSION="2021.1.21"
+VERSION="2023.02.10"
 
 # sleep in seconds between login tries
 #
@@ -55,15 +55,15 @@ PAGE_INF=info.html
 PAGE_KEY=resetrouter.html
 PAGE_RBT=rebootinfo.cgi
 
-# machine name / platform (mips for router like DD-WRT, TOMATO) (i686 for desktop)
+# machine name / platform (mips/armv7l for router RT-N16/RT-N18) (i686/x86_64 for desktop 32/64)
 #
 hw=$( uname -m )
 
 # wget options - quiet, stdout
 #
 WGET="wget -q -O -"
-# disable challenge auth. outside of mips platform
-[ "$hw" != 'mips' ] && WGET="$WGET --auth-no-challenge"
+# enable challenge auth. for intel/amd 32/64 desktop cpu platform
+[ "$hw" == 'i686' -o "$hw" == 'x86_64' ] && WGET="$WGET --auth-no-challenge"
 
 # print/log message
 #
